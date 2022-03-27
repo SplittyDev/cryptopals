@@ -1,3 +1,14 @@
+static BASE64_ENCODE_LUT: [char; 64] = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+    'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+    'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+    'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+    'w', 'x', 'y', 'z', '0', '1', '2', '3',
+    '4', '5', '6', '7', '8', '9', '+', '/'
+];
+
 pub fn unhexlify(s: &str) -> Option<String> {
     let mut chars = s.chars().peekable();
     fn char2hex(c: u8) -> Option<u8> {
@@ -22,16 +33,6 @@ pub fn unhexlify(s: &str) -> Option<String> {
 }
 
 pub fn base64(s: &str) -> Option<String> {
-    let lut = [
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-        'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-        'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-        'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-        'w', 'x', 'y', 'z', '0', '1', '2', '3',
-        '4', '5', '6', '7', '8', '9', '+', '/'
-    ];
     let input_size = s.len();
     let output_size = 4 * ((input_size + 2) / 3);
     let mut bytes = s.bytes().peekable();
@@ -47,7 +48,7 @@ pub fn base64(s: &str) -> Option<String> {
             ((triple >> 1 * 6) & 0x3F) as u8,
             ((triple >> 0 * 6) & 0x3F) as u8,
         ];
-        let base64_chars = base64_bytes.map(|x| lut[x as usize]);
+        let base64_chars = base64_bytes.map(|x| BASE64_ENCODE_LUT[x as usize]);
         output_bytes.extend_from_slice(&base64_chars[..])
     }
     for i in 0..[0, 2, 1][input_size % 3] {
