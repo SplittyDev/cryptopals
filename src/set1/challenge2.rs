@@ -26,7 +26,7 @@ pub fn static_str_xor_unsized<const N: usize>(a: &str, b: &str) -> Option<[u8; N
 #[cfg(test)]
 mod tests {
     use super::{static_xor, static_xor_unsized, static_str_xor_unsized};
-    
+
     #[test]
     fn test_static_xor() {
         let a = [0xAA, 0xBB, 0xCC];
