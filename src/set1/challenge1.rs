@@ -62,7 +62,7 @@ pub fn hex_to_base64(s: &str) -> Option<String> {
 }
 
 #[cfg(test)]
-mod tests {
+mod test_s1_c1 {
     use super::{unhexlify, base64, hex_to_base64};
 
     #[test]
@@ -86,7 +86,7 @@ mod tests {
         let actual = base64(input).unwrap();
         assert_eq!(expected, actual);
     }
-    
+
     #[test]
     fn test_hex_to_base64() {
         let input = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d";

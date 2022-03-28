@@ -8,7 +8,14 @@ macro_rules! hashmap {
     }}
 }
 
-pub fn crack_single_byte_xor_cipher(s: &str) -> (u8, String) {
+#[derive(Debug)]
+pub struct DecodingResult {
+    pub key: u8,
+    pub score: f32,
+    pub str: String,
+}
+
+pub fn crack_single_byte_xor_cipher(s: &str) -> DecodingResult {
     let english_letter_frequencies: HashMap<char, f32> = hashmap![
         ' ' => 0.182884,
         'e' => 0.111607,
@@ -56,12 +63,18 @@ pub fn crack_single_byte_xor_cipher(s: &str) -> (u8, String) {
                 .partial_cmp(score_b)
                 .unwrap_or(std::cmp::Ordering::Equal)
         })
-        .map(|(key, _, s)| (key, s.to_string()))
+        .map(|(key, score, s)| {
+            DecodingResult {
+                key,
+                score,
+                str: s
+            }
+        })
         .unwrap()
 }
 
 #[cfg(test)]
-mod tests {
+mod test_s1_c3 {
     use crate::set1::challenge1::unhexlify;
     use super::crack_single_byte_xor_cipher;
 
@@ -70,8 +83,8 @@ mod tests {
         let hex_input = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
         let expected = "Cooking MC's like a pound of bacon";
         let input = unhexlify(hex_input).unwrap();
-        let (key, output) = crack_single_byte_xor_cipher(&input);
-        assert_eq!(key, 88_u8);
-        assert_eq!(output, expected);
+        let actual = crack_single_byte_xor_cipher(&input);
+        assert_eq!(88_u8, actual.key);
+        assert_eq!(expected, actual.str);
     }
 }

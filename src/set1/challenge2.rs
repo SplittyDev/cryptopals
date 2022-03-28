@@ -24,7 +24,7 @@ pub fn static_str_xor_unsized<const N: usize>(a: &str, b: &str) -> Option<[u8; N
 }
 
 #[cfg(test)]
-mod tests {
+mod test_s1_c2 {
     use super::{static_xor, static_xor_unsized, static_str_xor_unsized};
 
     #[test]
