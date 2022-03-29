@@ -13,9 +13,10 @@ where
     buf
 }
 
-pub fn repeating_key_xor<T>(key: T, s: T) -> String
+pub fn repeating_key_xor<K, S>(key: K, s: S) -> String
 where
-    T: AsRef<str>,
+    K: AsRef<str>,
+    S: AsRef<str>,
 {
     let key_bytes = key.as_ref().as_bytes();
     let str_bytes = s.as_ref().as_bytes();
