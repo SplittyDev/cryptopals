@@ -15,7 +15,10 @@ pub struct DecodingResult {
     pub str: String,
 }
 
-pub fn crack_single_byte_xor_cipher(s: &str) -> DecodingResult {
+pub fn crack_single_byte_xor_cipher<T>(s: T) -> DecodingResult
+where
+    T: AsRef<str>,
+{
     let english_letter_frequencies: HashMap<char, f32> = hashmap![
         ' ' => 0.182884,
         'e' => 0.111607,
@@ -51,11 +54,14 @@ pub fn crack_single_byte_xor_cipher(s: &str) -> DecodingResult {
     };
     (0..u8::MAX)
         .map(|b| {
-            (b, s
-                .as_bytes()
-                .iter()
-                .map(|s| (s ^ b) as char)
-                .collect::<String>())
+            (
+                b,
+                s.as_ref()
+                    .as_bytes()
+                    .iter()
+                    .map(|s| (s ^ b) as char)
+                    .collect::<String>(),
+            )
         })
         .map(|(key, s)| (key, score(&s), s))
         .max_by(|(_, score_a, _), (_, score_b, _)| {
@@ -63,20 +69,14 @@ pub fn crack_single_byte_xor_cipher(s: &str) -> DecodingResult {
                 .partial_cmp(score_b)
                 .unwrap_or(std::cmp::Ordering::Equal)
         })
-        .map(|(key, score, s)| {
-            DecodingResult {
-                key,
-                score,
-                str: s
-            }
-        })
+        .map(|(key, score, s)| DecodingResult { key, score, str: s })
         .unwrap()
 }
 
 #[cfg(test)]
 mod test_s1_c3 {
-    use crate::set1::challenge1::unhexlify;
     use super::crack_single_byte_xor_cipher;
+    use crate::set1::challenge1::unhexlify;
 
     #[test]
     fn test_crack_single_byte_xor_cipher() {

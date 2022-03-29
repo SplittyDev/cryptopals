@@ -1,8 +1,11 @@
 static HEX_LOOKUP: &'static [u8] = b"0123456789abcdef";
 
-pub fn hexlify(s: &str) -> String {
-    let mut buf = String::with_capacity(s.len() * 2);
-    for b in s.bytes() {
+pub fn hexlify<T>(s: T) -> String
+where
+    T: AsRef<str>,
+{
+    let mut buf = String::with_capacity(s.as_ref().len() * 2);
+    for b in s.as_ref().bytes() {
         let chr1 = HEX_LOOKUP[(b >> 4 & 0x0F) as usize] as char;
         let chr2 = HEX_LOOKUP[(b & 0x0F) as usize] as char;
         buf.extend([chr1, chr2]);
@@ -10,10 +13,14 @@ pub fn hexlify(s: &str) -> String {
     buf
 }
 
-pub fn repeating_key_xor(key: &str, s: &str) -> String {
-    let key_bytes = key.as_bytes();
-    let mut buf = String::with_capacity(s.len());
-    for (i, c) in s.bytes().enumerate() {
+pub fn repeating_key_xor<T>(key: T, s: T) -> String
+where
+    T: AsRef<str>,
+{
+    let key_bytes = key.as_ref().as_bytes();
+    let str_bytes = s.as_ref().as_bytes();
+    let mut buf = String::with_capacity(str_bytes.len());
+    for (i, c) in str_bytes.iter().enumerate() {
         buf.push((c ^ key_bytes[i % key_bytes.len()]) as char);
     }
     buf
@@ -22,7 +29,6 @@ pub fn repeating_key_xor(key: &str, s: &str) -> String {
 #[cfg(test)]
 mod test_s1_c5 {
     use super::{hexlify, repeating_key_xor};
-
 
     #[test]
     fn test_hexlify() {

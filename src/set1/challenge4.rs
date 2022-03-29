@@ -1,19 +1,23 @@
-use super::challenge3::{DecodingResult, crack_single_byte_xor_cipher};
+use super::challenge3::{crack_single_byte_xor_cipher, DecodingResult};
 
-pub fn find_xor_encrypted_string<T>(list: &[T]) -> DecodingResult where T: AsRef<str> {
-    list
-        .iter()
+pub fn find_xor_encrypted_string<T>(list: &[T]) -> DecodingResult
+where
+    T: AsRef<str>,
+{
+    list.iter()
         .map(|s| crack_single_byte_xor_cipher(s.as_ref()))
         .max_by(|a, b| {
-            a.score.partial_cmp(&b.score).unwrap_or(std::cmp::Ordering::Equal)
+            a.score
+                .partial_cmp(&b.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
         })
         .unwrap()
 }
 
 #[cfg(test)]
 mod test_s1_c4 {
-    use crate::set1::challenge1::unhexlify;
     use super::find_xor_encrypted_string;
+    use crate::set1::challenge1::unhexlify;
 
     #[test]
     fn test_find_xor_encrypted_string() {

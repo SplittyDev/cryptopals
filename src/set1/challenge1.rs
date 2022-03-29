@@ -1,16 +1,15 @@
-static BASE64_ENCODE_LUT: [char; 64] = [
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-    'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-    'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-    'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-    'w', 'x', 'y', 'z', '0', '1', '2', '3',
-    '4', '5', '6', '7', '8', '9', '+', '/'
+pub static BASE64_ENCODE_LUT: [char; 64] = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+    'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+    'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4',
+    '5', '6', '7', '8', '9', '+', '/',
 ];
 
-pub fn unhexlify(s: &str) -> Option<String> {
-    let mut chars = s.chars().peekable();
+pub fn unhexlify<T>(s: T) -> Option<String>
+where
+    T: AsRef<str>,
+{
+    let mut chars = s.as_ref().chars().peekable();
     fn char2hex(c: u8) -> Option<u8> {
         if c >= 65 && c <= 90 {
             Some(c - 65 + 10)
@@ -32,10 +31,13 @@ pub fn unhexlify(s: &str) -> Option<String> {
     return Some(output.into_iter().collect());
 }
 
-pub fn base64(s: &str) -> Option<String> {
-    let input_size = s.len();
+pub fn base64_encode<T>(s: T) -> Option<String>
+where
+    T: AsRef<str>,
+{
+    let input_size = s.as_ref().len();
     let output_size = 4 * ((input_size + 2) / 3);
-    let mut bytes = s.bytes().peekable();
+    let mut bytes = s.as_ref().bytes().peekable();
     let mut output_bytes: Vec<char> = Vec::with_capacity(output_size);
     while output_bytes.len() < output_size {
         let octet_a: u32 = bytes.next().map(|x| x as u32).unwrap_or(0);
@@ -57,13 +59,16 @@ pub fn base64(s: &str) -> Option<String> {
     Some(output_bytes.iter().collect())
 }
 
-pub fn hex_to_base64(s: &str) -> Option<String> {
-    base64(unhexlify(s)?.as_str())
+pub fn hex_to_base64<T>(s: T) -> Option<String>
+where
+    T: AsRef<str>,
+{
+    base64_encode(unhexlify(s)?)
 }
 
 #[cfg(test)]
 mod test_s1_c1 {
-    use super::{unhexlify, base64, hex_to_base64};
+    use super::{base64_encode, hex_to_base64, unhexlify};
 
     #[test]
     fn test_unhexlify_with_valid_input() {
@@ -83,7 +88,7 @@ mod test_s1_c1 {
     fn test_base64() {
         let input = "Hello world";
         let expected = "SGVsbG8gd29ybGQ=";
-        let actual = base64(input).unwrap();
+        let actual = base64_encode(input).unwrap();
         assert_eq!(expected, actual);
     }
 
