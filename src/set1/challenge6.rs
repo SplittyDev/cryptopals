@@ -2,6 +2,7 @@ use crate::set1::{challenge3::crack_single_byte_xor_cipher, challenge5::repeatin
 
 use super::challenge1::BASE64_ENCODE_LUT;
 
+/// Calculate the Hamming-Distance between two byte-slices
 pub fn hamming_distance(a: &[u8], b: &[u8]) -> usize {
     let mut distance: usize = 0;
     for (byte_a, byte_b) in a.iter().zip(b.iter()) {
@@ -10,6 +11,7 @@ pub fn hamming_distance(a: &[u8], b: &[u8]) -> usize {
     distance
 }
 
+/// Calculate the Hamming-Distance between two strings
 pub fn hamming_distance_str<A, B>(a: A, b: B) -> usize
 where
     A: AsRef<str>,
@@ -18,6 +20,7 @@ where
     hamming_distance(a.as_ref().as_bytes(), b.as_ref().as_bytes())
 }
 
+/// Decode a base64-encoded string into a regular string
 pub fn base64_decode<T>(s: T) -> String
 where
     T: AsRef<str>,
@@ -43,18 +46,22 @@ where
     buf
 }
 
+/// Guess the key size for the specified repating-key-xor-encrypted string
 pub fn find_vigenere_key_size<T>(s: T) -> usize
 where
     T: AsRef<str>,
 {
     (2..=40)
         .map(|key_size| {
+            // Divide the input string into four chunks of N bytes,
+            // where N is the current guess for key size.
             let chunks = s
                 .as_ref()
                 .as_bytes()
                 .chunks(key_size)
                 .take(4)
                 .collect::<Vec<_>>();
+            // Calculate a running normalized Hamming-Distance over the chunks
             let distance = (0..4)
                 .flat_map(|i| {
                     (i..4)
@@ -64,6 +71,7 @@ where
                 .sum::<f32>();
             (key_size, distance)
         })
+        // Find the result with the lowest normalized Hamming-Distance
         .min_by(|(_, score_a), (_, score_b)| {
             score_a
                 .partial_cmp(score_b)
@@ -73,6 +81,8 @@ where
         .unwrap()
 }
 
+/// Crack a repeating-key-xor-encrypted string by guessing the most probable
+/// key size and computing the most probable key using letter frequencies.
 pub fn crack_vigenere_cipher<T>(s: T) -> (String, String)
 where
     T: AsRef<str>,

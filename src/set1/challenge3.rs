@@ -15,10 +15,13 @@ pub struct DecodingResult {
     pub str: String,
 }
 
+/// Crack an xor-encrypted string encrypted using a single-byte key
 pub fn crack_single_byte_xor_cipher<T>(s: T) -> DecodingResult
 where
     T: AsRef<str>,
 {
+    // English letter frequencies
+    // Sourced from https://www3.nd.edu/~busiforc/handouts/cryptography/letterfrequencies.html
     let english_letter_frequencies: HashMap<char, f32> = hashmap![
         ' ' => 0.182884,
         'e' => 0.111607,
@@ -48,6 +51,7 @@ where
         'j' => 0.001965,
         'q' => 0.001962
     ];
+    /// Count occurrences of each character in a string
     fn tally(s: &str) -> HashMap<char, f32> {
         let mut result = HashMap::<char, f32>::new();
         for c in s.chars() {
@@ -55,10 +59,12 @@ where
         }
         result
     }
+    // Score the likelihood of the specified string containing valid English text
+    // using the letter-frequency table above and the Bhattacharyya-Distance algorithm
     let score = |s: &str| -> f32 {
         let tally = tally(s);
         let total = s.len() as f32;
-        // Partial Bhattacharyya distance
+        // Bhattacharyya distance
         english_letter_frequencies
             .iter()
             .map(|(key, value)| {
@@ -67,7 +73,9 @@ where
             })
             .sum()
     };
+    // Iterate over all possible u8 values
     (0..u8::MAX)
+        // Decrypt all values using the current key-guess
         .map(|b| {
             (
                 b,
@@ -78,12 +86,15 @@ where
                     .collect::<String>(),
             )
         })
+        // Score each resulting string according to letter frequencies
         .map(|(key, s)| (key, score(&s), s))
+        // Find the best candidate based on the previously calculated score
         .max_by(|(_, score_a, _), (_, score_b, _)| {
             score_a
                 .partial_cmp(score_b)
                 .unwrap_or(std::cmp::Ordering::Equal)
         })
+        // Instantiate the decoding result
         .map(|(key, score, s)| DecodingResult { key, score, str: s })
         .unwrap()
 }

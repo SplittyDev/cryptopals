@@ -1,11 +1,14 @@
 use super::challenge3::{crack_single_byte_xor_cipher, DecodingResult};
 
+/// Determine which string in a slice of strings is most likely to be xor-encrypted
 pub fn find_xor_encrypted_string<T>(list: &[T]) -> DecodingResult
 where
     T: AsRef<str>,
 {
     list.iter()
+        // Attempt to decrypt every string
         .map(|s| crack_single_byte_xor_cipher(s.as_ref()))
+        // Find the result with the best score
         .max_by(|a, b| {
             a.score
                 .partial_cmp(&b.score)

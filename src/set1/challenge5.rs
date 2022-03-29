@@ -1,5 +1,6 @@
 static HEX_LOOKUP: &'static [u8] = b"0123456789abcdef";
 
+/// Encode a regular string into a hex-encoded string
 pub fn hexlify<T>(s: T) -> String
 where
     T: AsRef<str>,
@@ -13,6 +14,7 @@ where
     buf
 }
 
+/// Xor-encrypt a string using an arbitrarily-sized key
 pub fn repeating_key_xor<K, S>(key: K, s: S) -> String
 where
     K: AsRef<str>,
