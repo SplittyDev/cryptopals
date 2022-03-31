@@ -43,7 +43,10 @@ pub fn base64_decode_bytes(bytes: &[u8]) -> Vec<u8> {
 }
 
 pub fn base64_decode(bytes: &[u8]) -> String {
-    base64_decode_bytes(bytes).into_iter().map(|x| x as char).collect()
+    base64_decode_bytes(bytes)
+        .into_iter()
+        .map(|x| x as char)
+        .collect()
 }
 
 /// Guess the key size for the specified repating-key-xor-encrypted string

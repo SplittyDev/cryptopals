@@ -5,8 +5,7 @@ pub fn duplicate_block_count(block: &mut Vec<&[u8]>) -> usize {
     len - block.len()
 }
 
-pub fn find_aes128_cbc_encrypted_text(texts: &[&[u8]]) -> Vec<u8>
-{
+pub fn find_aes128_cbc_encrypted_text(texts: &[&[u8]]) -> Vec<u8> {
     texts
         .iter()
         .map(|ciphertext| {
@@ -14,9 +13,7 @@ pub fn find_aes128_cbc_encrypted_text(texts: &[&[u8]]) -> Vec<u8>
             let mut chunks = ciphertext.chunks(16).collect::<Vec<_>>();
             (ciphertext, duplicate_block_count(&mut chunks))
         })
-        .max_by(|(_, score_a), (_, score_b)| {
-            score_a.cmp(score_b)
-        })
+        .max_by(|(_, score_a), (_, score_b)| score_a.cmp(score_b))
         .map(|(ciphertext, _)| ciphertext)
         .unwrap()
         .into_iter()
