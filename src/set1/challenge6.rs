@@ -21,12 +21,8 @@ where
 }
 
 /// Decode a base64-encoded string into a regular string
-pub fn base64_decode<T>(s: T) -> String
-where
-    T: AsRef<str>,
-{
-    let mut buf = String::new();
-    let bytes = s.as_ref().as_bytes();
+pub fn base64_decode_bytes(bytes: &[u8]) -> Vec<u8> {
+    let mut buf: Vec<u8> = Vec::new();
     let pad_len = bytes.iter().rev().take_while(|&&b| b == b'=').count();
     for b in bytes.chunks(4) {
         let decode_byte = |b: u8| {
@@ -39,11 +35,15 @@ where
             + (decode_byte(b[1]) << 12)
             + (decode_byte(b[2]) << 6)
             + decode_byte(b[3]);
-        let chars = [(n >> 16) & 0xFF, (n >> 8) & 0xFF, n & 0xFF].map(|x| x as u8 as char);
+        let chars = [(n >> 16) & 0xFF, (n >> 8) & 0xFF, n & 0xFF].map(|x| x as u8);
         buf.extend(&chars[..]);
     }
     (0..pad_len).for_each(|_| drop(buf.pop().unwrap()));
     buf
+}
+
+pub fn base64_decode(bytes: &[u8]) -> String {
+    base64_decode_bytes(bytes).into_iter().map(|x| x as char).collect()
 }
 
 /// Guess the key size for the specified repating-key-xor-encrypted string
@@ -132,21 +132,21 @@ mod test_s1_c6 {
     fn test_base64_decode() {
         let input = "SGVsbG8gd29ybGQ=";
         let expected = "Hello world";
-        let actual = base64_decode(input);
+        let actual = base64_decode(input.as_bytes());
         assert_eq!(expected, actual);
     }
 
     #[test]
     fn test_find_vigenere_key_size() {
         let expected = 29_usize;
-        let actual = find_vigenere_key_size(base64_decode(STR));
+        let actual = find_vigenere_key_size(base64_decode(STR.as_bytes()));
         assert_eq!(expected, actual);
     }
 
     #[test]
     fn test_crack_vigenere_cipher() {
         let expected_key = "Terminator X: Bring the noise";
-        let (actual_key, actual_result) = crack_vigenere_cipher(base64_decode(STR));
+        let (actual_key, actual_result) = crack_vigenere_cipher(base64_decode(STR.as_bytes()));
         assert_eq!(expected_key, actual_key);
         assert!(actual_result.starts_with("I'm back and I'm ringin' the bell"));
         assert!(actual_result.ends_with("Play that funky music \n"));
